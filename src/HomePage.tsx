@@ -1,19 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
+import BuildingDetailView from './BuildingDetailView.tsx';
 import { Settings, Bell, Plus, Home, Calculator, ChartLine } from 'lucide-react';
 import CBREmckinney from './CBREmckinney.png';
 
-
-const PropertyCard = ({ title, address, propertyType, acquisitionDate, imageSrc }) => (
-  <div className="bg-green-50 rounded-lg p-4 mb-4 flex justify-between items-center">
+const PropertyCard = ({ title, address, propertyType, acquisitionDate, imageSrc, onClick }) => (
+  <div className="bg-green-50 rounded-lg p-4 mb-4 flex justify-between items-center cursor-pointer hover:bg-green-100 transition-colors" onClick={onClick}>
     <div className="flex-1">
       <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
       <p className="text-sm text-gray-600">{address}</p>
       <p className="text-sm text-gray-600">Property Type: {propertyType}</p>
       <p className="text-sm text-gray-600">Property Acquired: {acquisitionDate}</p>
     </div>
-    <div className="w-60 h-30">
+    <div className="w-32 h-24">
       <img 
-        src={CBREmckinney}
+        src={CBREmckinney} 
         alt={title}
         className="w-full h-full object-cover rounded"
       />
@@ -51,6 +51,7 @@ const EmissionsChart = () => (
 );
 
 const HomePage = () => {
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -79,6 +80,7 @@ const HomePage = () => {
           
           <PropertyCard 
             title="CBRE McKinney Building"
+            onClick={() => setSelectedBuilding('mckinney')}
             address="2100 McKinney Ave Suite 700, Dallas, TX 75201"
             propertyType="Building"
             acquisitionDate="March 2018"
@@ -115,6 +117,11 @@ const HomePage = () => {
           </div>
         </div>
       </nav>
+
+      {/* Building Detail Modal */}
+      {selectedBuilding === 'mckinney' && (
+        <BuildingDetailView onClose={() => setSelectedBuilding(null)} />
+      )}
     </div>
   );
 };

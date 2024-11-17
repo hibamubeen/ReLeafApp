@@ -355,7 +355,7 @@ const LoginPage = () => {
           onMouseLeave={() => setIsHovered(null)}
           style={{
             ...buttonBaseStyle,
-            backgroundColor: isLoginClicked ? '#1A4B82' : '#A0C6B3', // Changed to match gradient blue
+            backgroundColor: isLoginClicked ? '#1A4B82' : '#006633', // Changed to match gradient blue
             color: '#FFFFFF', // Changed to white for better contrast
             transform: isLoginClicked 
               ? 'scale(0.95)' 
@@ -397,7 +397,7 @@ const LoginPage = () => {
           onMouseLeave={() => setIsHovered(null)}
           style={{
             ...buttonBaseStyle,
-            backgroundColor: isSignUpClicked ? '#1A4B82' : '#3c7eb8', // Changed to match gradient blue
+            backgroundColor: isSignUpClicked ? '#1A4B82' : '#006633', // Changed to match gradient blue
             color: '#FFFFFF', // Changed to white for better contrast
             transform: isSignUpClicked 
               ? 'scale(0.95)' 
