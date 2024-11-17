@@ -1,5 +1,5 @@
 // src/utils/billUtils.ts
-import { MonthlyBills, MonthlyTotals, ChartDataPoint } from '../types';
+import { MonthlyBills, MonthlyTotals, ChartDataPoint } from './types';
 
 // Function to calculate total emissions from energy usage
 export const calculateEmissions = (usage: number, type: string): number => {
