@@ -111,7 +111,7 @@ const LoginPage = () => {
   return (
     <div style={{ 
       height: '100vh',
-      background: 'linear-gradient(135deg, #F5F5F5 0%, #408D66 100%)', // Changed to neutral gray gradient
+      background: 'linear-gradient(135deg, #dcf0c0 0%, #00552A 100%)', // Changed to neutral gray gradient
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -355,7 +355,7 @@ const LoginPage = () => {
           onMouseLeave={() => setIsHovered(null)}
           style={{
             ...buttonBaseStyle,
-            backgroundColor: isLoginClicked ? '#1A4B82' : '#006633', // Changed to match gradient blue
+            backgroundColor: isLoginClicked ? '#1A4B82' : '#408D66', // Changed to match gradient blue
             color: '#FFFFFF', // Changed to white for better contrast
             transform: isLoginClicked 
               ? 'scale(0.95)' 
@@ -397,7 +397,7 @@ const LoginPage = () => {
           onMouseLeave={() => setIsHovered(null)}
           style={{
             ...buttonBaseStyle,
-            backgroundColor: isSignUpClicked ? '#1A4B82' : '#006633', // Changed to match gradient blue
+            backgroundColor: isSignUpClicked ? '#1A4B82' : '#408D66', // Changed to match gradient blue
             color: '#FFFFFF', // Changed to white for better contrast
             transform: isSignUpClicked 
               ? 'scale(0.95)' 
