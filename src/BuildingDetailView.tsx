@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Upload, X } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { BuildingDetailViewProps, BillData, MonthlyBills } from './types';
 import BillParser from './BillParser.tsx';
 
 interface ChartData {
   name: string;
   value: number;
+}
+
+interface BuildingDetailViewProps {
+  buildingData: any;
+  onClose: () => void;
+  onUpdateProperty: (property: any) => void;
 }
 
 interface BillUploadSectionProps {
@@ -16,6 +21,7 @@ interface BillUploadSectionProps {
 }
 
 const BillUploadSection: React.FC<BillUploadSectionProps> = ({ month, uploadedFiles, onFileUpload }) => {
+  
   const handleUpload = async (type: string, file: File) => {
     if (!file) return;
     
@@ -115,9 +121,10 @@ const BillUploadSection: React.FC<BillUploadSectionProps> = ({ month, uploadedFi
 };
 
 const BuildingDetailView: React.FC<BuildingDetailViewProps> = ({ buildingData, onClose, onUpdateProperty }) => {
-  const [uploadedFiles, setUploadedFiles] = useState<MonthlyBills>({});
-  const [energyData, setEnergyData] = useState<ChartData[]>([]);
-  const [costData, setCostData] = useState<ChartData[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState({});
+  const [energyData, setEnergyData] = useState([]);
+  const [costData, setCostData] = useState([]);
+  const [currentAnalysis, setCurrentAnalysis] = useState<any>(null);
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -136,6 +143,9 @@ const BuildingDetailView: React.FC<BuildingDetailViewProps> = ({ buildingData, o
           [type]: fileData
         }
       };
+
+      updateCharts(newFiles);
+
       
       console.log('Updated files state:', newFiles);
       return newFiles;
@@ -159,9 +169,11 @@ const BuildingDetailView: React.FC<BuildingDetailViewProps> = ({ buildingData, o
     onUpdateProperty(updatedProperty);
   };
 
-  const handleBulkBillsParsed = (bills: any) => {
+  const handleBulkBillsParsed = (bills: any, analysis: any) => {
     setUploadedFiles(bills);
-    updateCharts(bills);
+    setCurrentAnalysis(analysis);
+    updateCharts(bills); // Make sure to update charts with the new bills
+
     
     const updatedProperty = {
       ...buildingData,
@@ -170,14 +182,13 @@ const BuildingDetailView: React.FC<BuildingDetailViewProps> = ({ buildingData, o
     onUpdateProperty(updatedProperty);
   };
 
-  const updateCharts = (files: MonthlyBills) => {
-    console.log('Updating charts with files:', files);
-    
+  const updateCharts = (files: any) => {
     const totals = {
       heating: { usage: 0, cost: 0 },
       water: { usage: 0, cost: 0 },
       electricity: { usage: 0, cost: 0 }
     };
+
 
     // Calculate totals
     Object.entries(files).forEach(([month, monthData]) => {
@@ -221,9 +232,32 @@ const BuildingDetailView: React.FC<BuildingDetailViewProps> = ({ buildingData, o
     }
   };
 
+  const handleSaveAnalysis = () => {
+    if (!currentAnalysis) return;
+
+    const savedAnalysis = {
+      buildingId: buildingData.title,
+      buildingDetails: buildingData,
+      analysis: currentAnalysis,
+      date: new Date().toISOString(),
+    };
+
+    // Get existing analyses or initialize empty array
+    const existingAnalyses = JSON.parse(localStorage.getItem('savedAnalyses') || '[]');
+    
+    // Add new analysis
+    existingAnalyses.push(savedAnalysis);
+    
+    // Save back to localStorage
+    localStorage.setItem('savedAnalyses', JSON.stringify(existingAnalyses));
+    
+    alert('Analysis saved successfully!');
+  };
+
   const COLORS = ['#00552A', '#007A3D', '#009F50'];
 
   return (
+    
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-green-50 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl">
         {/* Header */}
@@ -238,6 +272,7 @@ const BuildingDetailView: React.FC<BuildingDetailViewProps> = ({ buildingData, o
             <X size={24} className="text-green-800" />
           </button>
         </div>
+
 
 
         {/* Content */}
@@ -261,9 +296,18 @@ const BuildingDetailView: React.FC<BuildingDetailViewProps> = ({ buildingData, o
                 <p className="text-gray-700">
                   <span className="font-medium">Property Acquired:</span> {buildingData.acquisitionDate}
                 </p>
+                {currentAnalysis && (
+                  <button 
+                    onClick={handleSaveAnalysis}
+                    className="mt-4 bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition-colors flex items-center gap-2"
+                  >
+                    Save Analysis
+                  </button>
+                )}
               </div>
             </div>
           </div>
+
 
           {/* Charts Section */}
           <div className="grid grid-cols-2 gap-6 mb-8">

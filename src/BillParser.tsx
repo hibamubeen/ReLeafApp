@@ -3,7 +3,7 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Toolti
 import { Upload, AlertTriangle } from 'lucide-react';
 
 interface BillParserProps {
-  onBillsParsed: (bills: any) => void;
+  onBillsParsed: (bills: any, analysis: any) => void;
   buildingId: string;
 }
 
@@ -168,7 +168,7 @@ const BillParser: React.FC<BillParserProps> = ({ onBillsParsed, buildingId }) =>
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
+  
     try {
       const text = await file.text();
       const parsedBills = parseBillContent(text);
@@ -187,13 +187,13 @@ const BillParser: React.FC<BillParserProps> = ({ onBillsParsed, buildingId }) =>
         };
         return acc;
       }, {} as any);
-
-      onBillsParsed(formattedBills);
+  
+      onBillsParsed(formattedBills, analysisResult);
     } catch (error) {
       console.error('Error parsing bills:', error);
     }
   };
-
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-center">

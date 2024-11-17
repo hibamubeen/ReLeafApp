@@ -4,6 +4,8 @@ import { Settings, Bell, Plus, Home, Calculator, ChartLine, Leaf, DollarSign, X,
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { calculateMonthlyData, formatMonthlyDataForChart } from './billUtils.tsx';
 import CBREmckinney from './CBREmckinney.png';
+import WaterPark from './WaterPark.jpg';
+import SavedAnalysis from './SavedAnalysis.tsx';
 
 // Centralized styles object
 const styles = {
@@ -179,31 +181,19 @@ const EmissionsChart = ({ properties }) => {
   const [timeRange, setTimeRange] = useState('year');
   const [chartData, setChartData] = useState([]);
 
+  const PROPERTY_COLORS = {
+    "CBRE McKinney Building": "#dc2626",  // green
+    "Hawaiian Falls": "#16a34a",          // red
+    "Random Building": "#0041c1",
+    "CBRE": "#f1c232",  // green
+
+    // Add more colors as needed for additional properties
+  };
+
   useEffect(() => {
     // Update chart data when properties change
     let combinedMonthlyData = {};
     
-    properties.forEach(property => {
-      if (property.bills) {
-        Object.entries(property.bills).forEach(([month, bills]) => {
-          if (!combinedMonthlyData[month]) {
-            combinedMonthlyData[month] = 0;
-          }
-          
-          // Calculate emissions for each utility type
-          Object.entries(bills).forEach(([type, bill]) => {
-            if (bill?.data) {
-              const emissionFactors = {
-                electricity: 0.92,
-                heating: 0.18,
-                water: 0.419
-              };
-              combinedMonthlyData[month] += bill.data.usage * emissionFactors[type];
-            }
-          });
-        });
-      }
-    });
 
     // Convert to chart format
     const monthOrder = [
@@ -211,14 +201,41 @@ const EmissionsChart = ({ properties }) => {
       'July', 'August', 'September', 'October', 'November', 'December'
     ];
 
-    const sortedData = monthOrder
-      .map(month => ({
-        month: month.substring(0, 3),
-        emissions: Math.round(combinedMonthlyData[month] || 0)
-      }));
+    // Initialize monthly data structure
+    const monthlyData = monthOrder.map(month => ({
+      month: month.substring(0, 3),
+      // Initialize each property's emissions to 0
+      ...Object.fromEntries(properties.map(prop => [prop.title, 0]))
+    }));
 
-    setChartData(sortedData);
+    properties.forEach(property => {
+      if (property.bills) {
+        Object.entries(property.bills).forEach(([month, bills]) => {
+          const monthIndex = monthOrder.findIndex(m => m === month);
+          if (monthIndex !== -1) {
+            let propertyEmissions = 0;
+            
+            Object.entries(bills).forEach(([type, bill]) => {
+              if (bill?.data) {
+                const emissionFactors = {
+                  electricity: 0.92,
+                  heating: 0.18,
+                  water: 0.419
+                };
+                propertyEmissions += bill.data.usage * emissionFactors[type];
+              }
+            });
+
+            monthlyData[monthIndex][property.title] = Math.round(propertyEmissions);
+          }
+        });
+      }
+    });
+
+
+  setChartData(monthlyData);
   }, [properties, timeRange]);
+
 
   // Calculate totals for metric cards
   const calculateTotals = () => {
@@ -258,6 +275,26 @@ const EmissionsChart = ({ properties }) => {
       return chartData.slice(-3);
     }
     return chartData;
+  };
+
+  // Custom tooltip to show emissions for each property
+  const MultiLineTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-4 border rounded-lg shadow-sm">
+          <p className="text-sm font-medium mb-2">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {entry.name}: {entry.value.toLocaleString()} kg CO₂
+            </p>
+          ))}
+          <p className="text-sm font-medium mt-2 text-gray-600">
+            Total: {payload.reduce((sum, entry) => sum + entry.value, 0).toLocaleString()} kg CO₂
+          </p>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -311,15 +348,19 @@ const EmissionsChart = ({ properties }) => {
                 tickLine={{ stroke: '#666' }}
                 tickFormatter={(value) => `${(value/1000).toFixed(1)}k`}
               />
-              <Tooltip content={<CustomTooltip />} />
-              <Line
-                type="monotone"
-                dataKey="emissions"
-                stroke="#16a34a"
-                strokeWidth={2}
-                dot={{ stroke: '#16a34a', strokeWidth: 2, fill: 'white' }}
-                activeDot={{ r: 6, stroke: '#16a34a', strokeWidth: 2, fill: 'white' }}
-              />
+              <Tooltip content={<MultiLineTooltip />} />
+              {properties.map((property) => (
+                <Line
+                  key={property.title}
+                  type="monotone"
+                  dataKey={property.title}
+                  name={property.title}
+                  stroke={PROPERTY_COLORS[property.title]}
+                  strokeWidth={3}
+                  dot={{ r: 4, strokeWidth: 2 }}
+                  activeDot={{ r: 7, strokeWidth: 2 }}
+                />
+              ))}
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -498,6 +539,7 @@ const HomePage = () => {
   const [totalEmissions, setTotalEmissions] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [emissionsData, setEmissionsData] = useState([]);
+  const [activeTab, setActiveTab] = useState('home');
   const [properties, setProperties] = useState([
     {
       title: "CBRE McKinney Building",
@@ -508,11 +550,11 @@ const HomePage = () => {
       bills: {}
     },
     {
-      title: "CBRE Richardson Building",
-      address: "2375 N Glenville Dr Bldg A, Richardson, TX 75082",
+      title: "Hawaiian Falls",
+      address: "4400 Paige Rd, The Colony, TX 75056",
       propertyType: "Building",
       acquisitionDate: "March 2023",
-      imageSrc: CBREmckinney,
+      imageSrc: WaterPark,
       bills: {}
     }
   ]);
@@ -576,52 +618,66 @@ const HomePage = () => {
 
       {/* Main Content */}
       <main className={styles.mainContent}>
-        {/* Overview Section */}
-        <div>
-          <h2 className={styles.section.title}>Overview</h2>
-          <EmissionsChart properties={properties} />
-        </div>
-        {/* Properties Section */}
-        <div>
-          <div className={styles.section.headerContainer}>
-            <h2 className={styles.section.title}>My properties</h2>
-            <button 
-              className={styles.addButton}
-              onClick={() => setShowAddModal(true)}
-            >
-              <Plus size={24} />
-            </button>
-          </div>
-          
-          <div className={styles.propertyGrid}>
-            {properties.map((property, index) => (
-              <PropertyCard 
-                key={index}
-                {...property}
-                onClick={() => setSelectedBuilding(property.title)}
-              />
-            ))}
-          </div>
-        </div>
-
+        {activeTab === 'home' ? (
+          <>
+            {/* Existing home content */}
+            <div>
+              <h2 className={styles.section.title}>Overview</h2>
+              <EmissionsChart properties={properties} />
+            </div>
+            <div>
+              <div className={styles.section.headerContainer}>
+                <h2 className={styles.section.title}>My properties</h2>
+                <button 
+                  className={styles.addButton}
+                  onClick={() => setShowAddModal(true)}
+                >
+                  <Plus size={24} />
+                </button>
+              </div>
+              
+              <div className={styles.propertyGrid}>
+                {properties.map((property, index) => (
+                  <PropertyCard 
+                    key={index}
+                    {...property}
+                    onClick={() => setSelectedBuilding(property.title)}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        ) : activeTab === 'analysis' ? (
+          <SavedAnalysis />
+        ) : null}
       </main>
 
       {/* Bottom Navigation */}
       <nav className={styles.navigation.wrapper}>
         <div className={styles.navigation.container}>
           <div className={styles.navigation.buttons}>
-            <button className={styles.navigation.activeButton}>
+            <button 
+              className={activeTab === 'home' ? styles.navigation.activeButton : styles.navigation.inactiveButton}
+              onClick={() => setActiveTab('home')}
+            >
               <Home size={24} />
             </button>
-            <button className={styles.navigation.inactiveButton}>
+            <button 
+              className={styles.navigation.inactiveButton}
+              onClick={() => setActiveTab('calculator')}
+            >
               <Calculator size={24} />
             </button>
-            <button className={styles.navigation.inactiveButton}>
+            <button 
+              className={activeTab === 'analysis' ? styles.navigation.activeButton : styles.navigation.inactiveButton}
+              onClick={() => setActiveTab('analysis')}
+            >
               <ChartLine size={24} />
             </button>
           </div>
         </div>
       </nav>
+
 
       {/* Add Property Modal */}
       {showAddModal && (
