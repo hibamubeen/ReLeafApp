@@ -2,7 +2,7 @@ import { AlertCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Camera, ChevronRight, User, Lock, Loader2, ArrowRight, Mail, UserPlus } from 'lucide-react';
 import './LoginPage.css';
-import Calc from './CarbonCalculator.tsx';
+import HomePage from './HomePage.tsx';
 import bannerPNG from './rightBanner.png';
 import logoImage from './releaf_logo.png'; 
 
@@ -72,7 +72,7 @@ const LoginPage = () => {
   };
 
   if (currentPage === 'main') {
-    return <Calc />;
+    return <HomePage />;
   }
 
   const buttonBaseStyle = {
