@@ -6,6 +6,9 @@ import { calculateMonthlyData, formatMonthlyDataForChart } from './billUtils.tsx
 import CBREmckinney from './CBREmckinney.png';
 import WaterPark from './WaterPark.jpg';
 import SavedAnalysis from './SavedAnalysis.tsx';
+import EcswBuilding from './EcswBuilding.jpg';
+import CarbonCalculator from './CarbonCalculator.tsx';
+
 
 // Centralized styles object
 const styles = {
@@ -184,8 +187,8 @@ const EmissionsChart = ({ properties }) => {
   const PROPERTY_COLORS = {
     "CBRE McKinney Building": "#dc2626",  // green
     "Hawaiian Falls": "#16a34a",          // red
-    "Random Building": "#0041c1",
-    "CBRE": "#f1c232",  // green
+    "UTD ECSW Building": "#0041c1",
+    "Random": "#f1c232",  // yellow
 
     // Add more colors as needed for additional properties
   };
@@ -552,11 +555,19 @@ const HomePage = () => {
     {
       title: "Hawaiian Falls",
       address: "4400 Paige Rd, The Colony, TX 75056",
-      propertyType: "Building",
+      propertyType: "Water Park",
       acquisitionDate: "March 2023",
       imageSrc: WaterPark,
       bills: {}
-    }
+    },
+    {
+      title: "UTD ECSW Building",
+      address: "2520 Rutford Ave, Richardson, TX 750801",
+      propertyType: "Building",
+      acquisitionDate: "November 2024",
+      imageSrc: EcswBuilding,
+      bills: {}
+    },
   ]);
 
   const handleAddProperty = (newProperty) => {
@@ -647,6 +658,8 @@ const HomePage = () => {
               </div>
             </div>
           </>
+        ) : activeTab === 'calculator' ? (
+          <CarbonCalculator />
         ) : activeTab === 'analysis' ? (
           <SavedAnalysis />
         ) : null}
@@ -663,7 +676,7 @@ const HomePage = () => {
               <Home size={24} />
             </button>
             <button 
-              className={styles.navigation.inactiveButton}
+              className={activeTab === 'calculator' ? styles.navigation.activeButton : styles.navigation.inactiveButton}
               onClick={() => setActiveTab('calculator')}
             >
               <Calculator size={24} />

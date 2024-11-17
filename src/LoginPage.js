@@ -111,7 +111,7 @@ const LoginPage = () => {
   return (
     <div style={{ 
       height: '100vh',
-      background: 'linear-gradient(135deg, #dcf0c0 0%, #00552A 100%)', // Changed to neutral gray gradient
+      background: 'linear-gradient(135deg, #F5F5F5 0%, #408D66 100%)', // Changed to neutral gray gradient
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -164,11 +164,12 @@ const LoginPage = () => {
   }}>
     <img 
       src={logoImage} 
-      alt="Rannel Logo"
+      alt="ReLeaf Logo"
       style={{
-        height: '230px', // Increased from 180px to 200px
+        height: '170px', // Increased from 180px to 200px
         width: 'auto',
-        marginBottom: '40px',
+        marginBottom: '10px',
+        marginTop: '20px',
         transition: 'transform 0.3s ease'
       }}
     />
@@ -180,14 +181,15 @@ const LoginPage = () => {
     color: '#2F3E46',
     textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
     letterSpacing: '0.5px',
-    marginBottom: '30px' // Added margin bottom to create more space
+    marginBottom: '40px', // Added margin bottom to create more space
+    marginTop: "-40px"
   }}>
-    Open the Door to a Brighter Future.
+    Properties, simplified.
   </p>
 </div>
       
 <div style={{
-  backgroundColor: 'rgba(255, 255, 255, 0.92)',
+  backgroundColor: 'rgba(255, 255, 255, 0.0)',
   padding: '28px',
   borderRadius: '20px',
   width: '100%',
@@ -355,7 +357,7 @@ const LoginPage = () => {
           onMouseLeave={() => setIsHovered(null)}
           style={{
             ...buttonBaseStyle,
-            backgroundColor: isLoginClicked ? '#1A4B82' : '#408D66', // Changed to match gradient blue
+            backgroundColor: isLoginClicked ? '#006633' : '#408D66', // Changed to match gradient blue
             color: '#FFFFFF', // Changed to white for better contrast
             transform: isLoginClicked 
               ? 'scale(0.95)' 
@@ -385,7 +387,7 @@ const LoginPage = () => {
               height: '100%',
               background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
               transform: 'translateY(-50%)',
-              transition: 'left 0.5s ease',
+              transition: 'left 0.5s ease'
             }}></div>
           </button>
         )}
@@ -397,7 +399,7 @@ const LoginPage = () => {
           onMouseLeave={() => setIsHovered(null)}
           style={{
             ...buttonBaseStyle,
-            backgroundColor: isSignUpClicked ? '#1A4B82' : '#408D66', // Changed to match gradient blue
+            backgroundColor: isSignUpClicked ? '#006633' : '#408D66', // Changed to match gradient blue
             color: '#FFFFFF', // Changed to white for better contrast
             transform: isSignUpClicked 
               ? 'scale(0.95)' 
