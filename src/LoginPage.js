@@ -62,9 +62,9 @@ const App = () => {
         {/* Feature Cards */}
         <div className="grid md:grid-cols-3 gap-8 mt-24">
           {[
-            { title: 'Sustainability', desc: 'Eco-friendly solutions for a greener tomorrow' },
+            { title: 'Sustainability', desc: 'Data Analytics for a greener tomorrow' },
             { title: 'Innovation', desc: 'Cutting-edge environmental technology' },
-            { title: 'Community', desc: 'Building a global network of environmental advocates' }
+            { title: 'Economy', desc: 'Employing the most efficient cost-saving techniques' }
           ].map((feature, index) => (
             <div key={index} 
                  className="p-6 bg-white/10 backdrop-blur-lg rounded-xl transform hover:-translate-y-2 transition-all duration-300"

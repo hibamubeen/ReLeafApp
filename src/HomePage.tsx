@@ -641,7 +641,7 @@ const HomePage = () => {
           <>
             {/* Existing home content */}
             <div>
-              <h2 className={styles.section.title}>Overview</h2>
+              <h2 className={styles.section.title}>Dashboard</h2>
               <EmissionsChart properties={properties} />
             </div>
             <div>
