@@ -7,7 +7,7 @@ const CarbonCalculator = () => {
     naturalGas: '',
     heatingOil: '',
     livingSpace: '',
-    waterUsage: 1
+    waterUsage: ''
   });
 
   const [result, setResult] = useState(null);
@@ -19,6 +19,13 @@ const CarbonCalculator = () => {
     heatingOil: "To calculate your total annual usage or cost of heating oil or other fuels to heat your home, review your monthly bills for heating oil or other home heating fuels. Each bill will tell you how many litres of oil were delivered to you each month at what cost.",
     livingSpace: "For a house, measure the length of a house and multiply it by the width of the house. If you have two stories, multiply by two. For an apartment or condo, first determine the area of each room by multiplying the length and width of each room. Add up the total area measurements for each room.",
     waterUsage: "Average household water consumption:\n1-person: 148 L/day\n2-person: 242 L/day\n3-person: 261 L/day\n4-person: 299 L/day\n5-person: 337 L/day"
+  };
+
+  const formatNumber = (num) => {
+    return parseFloat(num).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   };
 
   const handleInputChange = (e) => {
@@ -50,11 +57,11 @@ const CarbonCalculator = () => {
     setResult({
       total: totalCarbon.toFixed(2),
       breakdown: {
-        electricity: (electricity * 0.5).toFixed(2),
+        electricity: (electricity * 0.417).toFixed(2),
         naturalGas: (naturalGas * 5.3).toFixed(2),
         heatingOil: (heatingOil * 10).toFixed(2),
         livingSpace: (livingSpace * 0.5).toFixed(2),
-        waterUsage: (waterUsage * 10.6).toFixed(2)
+        waterUsage: (waterUsage * 0.008).toFixed(2)
       }
     });
   };
@@ -78,14 +85,13 @@ const CarbonCalculator = () => {
     <div className="min-h-screen bg-green-900">
       <main className="container mx-auto px-6 py-8 mb-16">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white">ReLeaf</h1>
           <h2 className="text-xl text-white">Carbon Footprint Calculator</h2>
-          <p className="bg-white text-green-900 p-4 rounded-lg mt-4 shadow-lg shadow-green-950/50 max-w-md mx-auto border-2 border-green-900">A carbon footprint measures the greenhouse gas
-             emissions caused by your household's activities.
-             Factors like where you live, the number of people 
-             in your household, and your income level influence 
-             energy use, transportation, and waste generation
-              all of which contribute to your environmental impact.</p>
+          <p className="bg-white text-green-900 p-4 rounded-lg mt-4 shadow-lg shadow-green-950/50 max-w-md mx-auto border-2 border-green-900">
+          A carbon footprint measures the greenhouse gas emissions caused by
+           your household's activities. Factors like electricity consumption,
+            natural gas usage, heating oil usage, living space size, and water 
+            usage influence energy use, resource consumption, and waste generation,
+             all of which contribute to your environmental impact.</p>
         </div>
 
         {/* Center the form content */}
@@ -216,7 +222,7 @@ const CarbonCalculator = () => {
                   className="flex-1 p-2 rounded bg-white/90 text-gray-800"
                 />
                 <span className="bg-white/90 p-2 rounded text-gray-800 min-w-20 text-center">
-                  m³/yr
+                  gal/yr
                 </span>
               </div>
             </div>
@@ -237,16 +243,16 @@ const CarbonCalculator = () => {
                 <h3 className="text-xl font-bold text-green-800 mb-4">Carbon Footprint Results</h3>
                 <div className="space-y-2">
                   <p className="text-lg font-semibold text-green-800">
-                    Total Carbon Footprint: {result.total} kg CO₂e/year
+                    Total Carbon Footprint: {formatNumber(result.total)} kg CO₂e/year
                   </p>
                   <div className="text-sm text-gray-600">
                     <p>Breakdown:</p>
                     <ul className="list-disc ml-5">
-                      <li>Electricity: {result.breakdown.electricity} kg CO₂e</li>
-                      <li>Natural Gas: {result.breakdown.naturalGas} kg CO₂e</li>
-                      <li>Heating Oil: {result.breakdown.heatingOil} kg CO₂e</li>
-                      <li>Living Space: {result.breakdown.livingSpace} kg CO₂e</li>
-                      <li>Water Usage: {result.breakdown.waterUsage} kg CO₂e</li>
+                      <li>Electricity: {formatNumber(result.breakdown.electricity)} kg CO₂e</li>
+                      <li>Natural Gas: {formatNumber(result.breakdown.naturalGas)} kg CO₂e</li>
+                      <li>Heating Oil: {formatNumber(result.breakdown.heatingOil)} kg CO₂e</li>
+                      <li>Living Space: {formatNumber(result.breakdown.livingSpace)} kg CO₂e</li>
+                      <li>Water Usage: {formatNumber(result.breakdown.waterUsage)} kg CO₂e</li>
                     </ul>
                   </div>
                 </div>
