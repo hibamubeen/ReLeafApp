@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Upload, AlertTriangle } from 'lucide-react';
+import { Upload, AlertTriangle, PlayCircle } from 'lucide-react';
+import { waterParkData } from './waterParkData.ts';
+
+
+
 
 interface BillParserProps {
   onBillsParsed: (bills: any, analysis: any) => void;
@@ -21,6 +25,53 @@ const BillParser: React.FC<BillParserProps> = ({ onBillsParsed, buildingId }) =>
     recommendations: string[];
   } | null>(null);
 
+  const handleAutoFill = () => {
+    try {
+      // Parse the original data
+      const parsedBills = parseBillContent(waterParkData);
+      
+      // Add random variations to each bill
+      const randomizedBills = parsedBills.map(bill => {
+        // Random variation between -1000 and +1000 dollars
+        const costVariation = (Math.random() - 0.5) * 700;
+        
+        // Calculate usage variation proportionally to cost variation
+        const usageVariation = (costVariation / bill.cost) * bill.usage;
+  
+        return {
+          ...bill,
+          cost: Math.max(100, bill.cost + costVariation), // Ensure cost doesn't go below $100
+          usage: Math.max(
+            bill.type === 'electricity' ? 1000 : // min 1000 kWh
+            bill.type === 'water' ? 10000 :      // min 10000 gallons
+            50,                                  // min 50 therms
+            bill.usage + usageVariation
+          )
+        };
+      });
+  
+      const analysisResult = analyzeEmissions(randomizedBills);
+      setAnalysis(analysisResult);
+      
+      // Convert to the format expected by the app
+      const formattedBills = randomizedBills.reduce((acc, bill) => {
+        if (!acc[bill.month]) acc[bill.month] = {};
+        acc[bill.month][bill.type] = {
+          fileName: 'HF-waterpark-data.txt',
+          data: {
+            usage: Math.round(bill.usage), // Round to whole numbers
+            cost: Math.round(bill.cost * 100) / 100 // Round to 2 decimal places
+          }
+        };
+        return acc;
+      }, {} as any);
+  
+      onBillsParsed(formattedBills, analysisResult);
+    } catch (error) {
+      console.error('Error processing water park data:', error);
+    }
+  };
+
   const parseBillContent = (content: string): ParsedBill[] => {
     const lines = content.split('\n');
     const bills: ParsedBill[] = [];
@@ -40,19 +91,13 @@ const BillParser: React.FC<BillParserProps> = ({ onBillsParsed, buildingId }) =>
         currentBill.unit = usageMatch[2];
       }
       if (costMatch) {
-        currentBill.cost = parseFloat(costMatch[1].replace(/,/g, ''));
+        currentBill.cost = parseFloat(costMatch[1].replace(/[$,]/g, ''));
         
         if (currentBill.month && currentBill.type && currentBill.usage && currentBill.cost) {
-          bills.push({
-            month: currentBill.month,
-            type: currentBill.type,
-            usage: currentBill.usage,
-            cost: currentBill.cost,
-            unit: currentBill.unit
-          } as ParsedBill);
-          currentBill = {};
+            bills.push(currentBill as ParsedBill);
+            currentBill = {};
+          }
         }
-      }
     });
 
     return bills;
@@ -193,11 +238,11 @@ const BillParser: React.FC<BillParserProps> = ({ onBillsParsed, buildingId }) =>
       console.error('Error parsing bills:', error);
     }
   };
-  
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-center">
-        <label className="cursor-pointer bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition-colors flex items-center gap-2">
+      <div className="flex justify-center space-x-4">  {/* Added space-x-4 for horizontal spacing */}
+        <label className="cursor-pointer bg-green-700 text-white px-6 py-3 rounded-lg hover:bg-green-800 transition-colors flex items-center gap-2">
           <Upload size={20} />
           Upload Yearly Bills
           <input
@@ -207,8 +252,14 @@ const BillParser: React.FC<BillParserProps> = ({ onBillsParsed, buildingId }) =>
             className="hidden"
           />
         </label>
+        <button
+          onClick={handleAutoFill}
+          className="bg-green-700 text-white px-6 py-3 rounded-lg hover:bg-green-800 transition-colors flex items-center gap-2"
+        >
+          <PlayCircle size={20} />
+          Load Water Park Data
+        </button>
       </div>
-
       {analysis && (
         <div className="space-y-6">
           {/* Analysis Alert */}

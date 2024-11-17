@@ -1,0 +1,181 @@
+// src/data/sampleBillData.ts
+
+export const sampleBillData = `Month: January
+Type: Electricity
+Usage: 10000 kWh
+Cost: 1250.00
+
+Month: January
+Type: Water
+Usage: 50000 gallons
+Cost: 350.00
+
+Month: January
+Type: Heating
+Usage: 500 therms
+Cost: 880.00
+
+Month: February
+Type: Electricity
+Usage: 9500 kWh
+Cost: 1180.00
+
+Month: February
+Type: Water
+Usage: 48000 gallons
+Cost: 340.00
+
+Month: February
+Type: Heating
+Usage: 450 therms
+Cost: 820.00
+
+Month: March
+Type: Electricity
+Usage: 9000 kWh
+Cost: 1120.00
+
+Month: March
+Type: Water
+Usage: 52000 gallons
+Cost: 360.00
+
+Month: March
+Type: Heating
+Usage: 400 therms
+Cost: 750.00
+
+Month: April
+Type: Electricity
+Usage: 8500 kWh
+Cost: 1050.00
+
+Month: April
+Type: Water
+Usage: 55000 gallons
+Cost: 380.00
+
+Month: April
+Type: Heating
+Usage: 300 therms
+Cost: 650.00
+
+Month: May
+Type: Electricity
+Usage: 9200 kWh
+Cost: 1150.00
+
+Month: May
+Type: Water
+Usage: 58000 gallons
+Cost: 400.00
+
+Month: May
+Type: Heating
+Usage: 250 therms
+Cost: 580.00
+
+Month: June
+Type: Electricity
+Usage: 11000 kWh
+Cost: 1350.00
+
+Month: June
+Type: Water
+Usage: 65000 gallons
+Cost: 450.00
+
+Month: June
+Type: Heating
+Usage: 200 therms
+Cost: 520.00
+
+Month: July
+Type: Electricity
+Usage: 12000 kWh
+Cost: 1450.00
+
+Month: July
+Type: Water
+Usage: 70000 gallons
+Cost: 480.00
+
+Month: July
+Type: Heating
+Usage: 150 therms
+Cost: 480.00
+
+Month: August
+Type: Electricity
+Usage: 12500 kWh
+Cost: 1520.00
+
+Month: August
+Type: Water
+Usage: 68000 gallons
+Cost: 470.00
+
+Month: August
+Type: Heating
+Usage: 150 therms
+Cost: 480.00
+
+Month: September
+Type: Electricity
+Usage: 11000 kWh
+Cost: 1350.00
+
+Month: September
+Type: Water
+Usage: 60000 gallons
+Cost: 420.00
+
+Month: September
+Type: Heating
+Usage: 200 therms
+Cost: 520.00
+
+Month: October
+Type: Electricity
+Usage: 9500 kWh
+Cost: 1180.00
+
+Month: October
+Type: Water
+Usage: 54000 gallons
+Cost: 370.00
+
+Month: October
+Type: Heating
+Usage: 300 therms
+Cost: 650.00
+
+Month: November
+Type: Electricity
+Usage: 9000 kWh
+Cost: 1120.00
+
+Month: November
+Type: Water
+Usage: 51000 gallons
+Cost: 355.00
+
+Month: November
+Type: Heating
+Usage: 400 therms
+Cost: 750.00
+
+Month: December
+Type: Electricity
+Usage: 9800 kWh
+Cost: 1220.00
+
+Month: December
+Type: Water
+Usage: 49000 gallons
+Cost: 345.00
+
+Month: December
+Type: Heating
+Usage: 480 therms
+Cost: 850.00`;
