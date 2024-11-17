@@ -3,6 +3,7 @@ import BuildingDetailView from './BuildingDetailView.tsx';
 import { Settings, Bell, Plus, Home, Calculator, ChartLine } from 'lucide-react';
 import CBREmckinney from './CBREmckinney.png';
 
+
 const PropertyCard = ({ title, address, propertyType, acquisitionDate, imageSrc, onClick }) => (
   <div className="bg-green-50 rounded-lg p-4 mb-4 flex justify-between items-center cursor-pointer hover:bg-green-100 transition-colors" onClick={onClick}>
     <div className="flex-1">

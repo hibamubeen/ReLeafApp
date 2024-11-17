@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './LoginPage';
 
+
 // Placeholder for your next page
 const MainPage = () => (
   <div className="min-h-screen bg-ingrediate-beige p-5">
