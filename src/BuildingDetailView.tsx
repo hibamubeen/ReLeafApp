@@ -312,7 +312,7 @@ const BuildingDetailView: React.FC<BuildingDetailViewProps> = ({ buildingData, o
           {/* Charts Section */}
           <div className="grid grid-cols-2 gap-6 mb-8">
             <div className="bg-white p-4 rounded-lg shadow">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Energy Distribution</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Emission Distribution</h3>
               {energyData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
