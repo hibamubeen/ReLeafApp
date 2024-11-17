@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';  // Add useEffect here
 import BuildingDetailView from './BuildingDetailView.tsx';
 import { Settings, Bell, Plus, Home, Calculator, ChartLine, Leaf, DollarSign, X, Upload } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { calculateMonthlyData, formatMonthlyDataForChart } from './billUtils.tsx';
 import CBREmckinney from './CBREmckinney.png';
 
 // Centralized styles object
@@ -174,65 +175,158 @@ const MetricCard = ({ icon: Icon, label, value, unit, color = "green" }) => (
   </div>
 );
 
-const EmissionsChart = () => (
-  <div className={styles.emissionsChart.wrapper}>
-    <div className={styles.emissionsChart.grid}>
-      <MetricCard
-        icon={Leaf}
-        label="Carbon Emissions"
-        value="20,000"
-        unit="kg/year"
-        color="green"
-      />
-      <MetricCard
-        icon={DollarSign}
-        label="Annual Cost"
-        value="10,000"
-        unit="USD/year"
-        color="green"
-      />
-    </div>
+const EmissionsChart = ({ properties }) => {
+  const [timeRange, setTimeRange] = useState('year');
+  const [chartData, setChartData] = useState([]);
 
-    <div className={styles.emissionsChart.chartCard.wrapper}>
-      <div className={styles.emissionsChart.chartCard.header}>
-        <h3 className={styles.emissionsChart.chartCard.title}>Emissions Trend</h3>
-        <div className={styles.emissionsChart.chartCard.controls}>
-          <select className={styles.emissionsChart.chartCard.select}>
-            <option>Last 12 months</option>
-            <option>Last 6 months</option>
-            <option>Last 30 days</option>
-          </select>
+  useEffect(() => {
+    // Update chart data when properties change
+    let combinedMonthlyData = {};
+    
+    properties.forEach(property => {
+      if (property.bills) {
+        Object.entries(property.bills).forEach(([month, bills]) => {
+          if (!combinedMonthlyData[month]) {
+            combinedMonthlyData[month] = 0;
+          }
+          
+          // Calculate emissions for each utility type
+          Object.entries(bills).forEach(([type, bill]) => {
+            if (bill?.data) {
+              const emissionFactors = {
+                electricity: 0.92,
+                heating: 0.18,
+                water: 0.419
+              };
+              combinedMonthlyData[month] += bill.data.usage * emissionFactors[type];
+            }
+          });
+        });
+      }
+    });
+
+    // Convert to chart format
+    const monthOrder = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    const sortedData = monthOrder
+      .map(month => ({
+        month: month.substring(0, 3),
+        emissions: Math.round(combinedMonthlyData[month] || 0)
+      }));
+
+    setChartData(sortedData);
+  }, [properties, timeRange]);
+
+  // Calculate totals for metric cards
+  const calculateTotals = () => {
+    let totalEmissions = 0;
+    let totalCost = 0;
+
+    properties.forEach(property => {
+      if (property.bills) {
+        Object.values(property.bills).forEach(monthBills => {
+          Object.entries(monthBills).forEach(([type, bill]) => {
+            if (bill?.data) {
+              const emissionFactors = {
+                electricity: 0.92,
+                heating: 0.18,
+                water: 0.419
+              };
+              totalEmissions += bill.data.usage * emissionFactors[type];
+              totalCost += bill.data.cost;
+            }
+          });
+        });
+      }
+    });
+
+    return {
+      emissions: Math.round(totalEmissions),
+      cost: Math.round(totalCost)
+    };
+  };
+
+  const totals = calculateTotals();
+
+  const filteredData = () => {
+    if (timeRange === '6months') {
+      return chartData.slice(-6);
+    } else if (timeRange === 'quarter') {
+      return chartData.slice(-3);
+    }
+    return chartData;
+  };
+
+  return (
+    <div className={styles.emissionsChart.wrapper}>
+      <div className={styles.emissionsChart.grid}>
+        <MetricCard
+          icon={Leaf}
+          label="Carbon Emissions"
+          value={totals.emissions.toLocaleString()}
+          unit="kg/year"
+          color="green"
+        />
+        <MetricCard
+          icon={DollarSign}
+          label="Annual Cost"
+          value={totals.cost.toLocaleString()}
+          unit="USD/year"
+          color="green"
+        />
+      </div>
+
+      <div className={styles.emissionsChart.chartCard.wrapper}>
+        <div className={styles.emissionsChart.chartCard.header}>
+          <h3 className={styles.emissionsChart.chartCard.title}>Emissions Trend</h3>
+          <div className={styles.emissionsChart.chartCard.controls}>
+            <select 
+              className={styles.emissionsChart.chartCard.select}
+              value={timeRange}
+              onChange={(e) => setTimeRange(e.target.value)}
+            >
+              <option value="year">Last 12 months</option>
+              <option value="6months">Last 6 months</option>
+              <option value="quarter">Last 3 months</option>
+            </select>
+          </div>
+        </div>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart 
+              data={filteredData()} 
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis 
+                dataKey="month" 
+                tick={{ fill: '#666' }}
+                tickLine={{ stroke: '#666' }}
+              />
+              <YAxis 
+                tick={{ fill: '#666' }}
+                tickLine={{ stroke: '#666' }}
+                tickFormatter={(value) => `${(value/1000).toFixed(1)}k`}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Line
+                type="monotone"
+                dataKey="emissions"
+                stroke="#16a34a"
+                strokeWidth={2}
+                dot={{ stroke: '#16a34a', strokeWidth: 2, fill: 'white' }}
+                activeDot={{ r: 6, stroke: '#16a34a', strokeWidth: 2, fill: 'white' }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
-      <div className="h-72">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={emissionsData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis 
-              dataKey="month" 
-              tick={{ fill: '#666' }}
-              tickLine={{ stroke: '#666' }}
-            />
-            <YAxis 
-              tick={{ fill: '#666' }}
-              tickLine={{ stroke: '#666' }}
-              tickFormatter={(value) => `${value}kg`}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Line
-              type="monotone"
-              dataKey="emissions"
-              stroke="#16a34a"
-              strokeWidth={2}
-              dot={{ stroke: '#16a34a', strokeWidth: 2, fill: 'white' }}
-              activeDot={{ r: 6, stroke: '#16a34a', strokeWidth: 2, fill: 'white' }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
     </div>
-  </div>
-);
+  );
+};
 
 
 
@@ -401,26 +495,69 @@ const AddPropertyModal = ({ onClose, onAdd }) => {
 const HomePage = () => {
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [totalEmissions, setTotalEmissions] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [emissionsData, setEmissionsData] = useState([]);
   const [properties, setProperties] = useState([
     {
       title: "CBRE McKinney Building",
       address: "2100 McKinney Ave Suite 700, Dallas, TX 75201",
       propertyType: "Building",
       acquisitionDate: "March 2018",
-      imageSrc: CBREmckinney
+      imageSrc: CBREmckinney,
+      bills: {}
     },
     {
       title: "CBRE Richardson Building",
       address: "2375 N Glenville Dr Bldg A, Richardson, TX 75082",
       propertyType: "Building",
       acquisitionDate: "March 2023",
-      imageSrc: CBREmckinney
+      imageSrc: CBREmckinney,
+      bills: {}
     }
   ]);
 
   const handleAddProperty = (newProperty) => {
     setProperties([...properties, newProperty]);
   };
+
+
+  useEffect(() => {
+    let totalAnnualEmissions = 0;
+    let totalAnnualCost = 0;
+    let combinedMonthlyData = {};
+
+    // Aggregate data from all properties
+    properties.forEach(property => {
+      if (property.bills) {
+        const { annualEmissions, annualCost, monthlyTotals } = calculateMonthlyData(property.bills);
+        totalAnnualEmissions += annualEmissions;
+        totalAnnualCost += annualCost;
+
+        // Combine monthly data
+        Object.entries(monthlyTotals).forEach(([month, data]) => {
+          if (!combinedMonthlyData[month]) {
+            combinedMonthlyData[month] = { emissions: 0, cost: 0 };
+          }
+          combinedMonthlyData[month].emissions += data.emissions;
+          combinedMonthlyData[month].cost += data.cost;
+        });
+      }
+    });
+
+    setTotalEmissions(Math.round(totalAnnualEmissions));
+    setTotalCost(Math.round(totalAnnualCost));
+    setEmissionsData(formatMonthlyDataForChart(combinedMonthlyData));
+  }, [properties]);
+
+  const handleUpdateProperty = (updatedProperty) => {
+    setProperties(prevProperties =>
+      prevProperties.map(property =>
+        property.title === updatedProperty.title ? updatedProperty : property
+      )
+    );
+  };
+
 
   return (
     <div className={styles.container}>
@@ -442,7 +579,7 @@ const HomePage = () => {
         {/* Overview Section */}
         <div>
           <h2 className={styles.section.title}>Overview</h2>
-          <EmissionsChart />
+          <EmissionsChart properties={properties} />
         </div>
         {/* Properties Section */}
         <div>
@@ -499,6 +636,7 @@ const HomePage = () => {
         <BuildingDetailView 
           onClose={() => setSelectedBuilding(null)}
           buildingData={properties.find(p => p.title === selectedBuilding)}
+          onUpdateProperty={handleUpdateProperty}
         />
       )}
     </div>

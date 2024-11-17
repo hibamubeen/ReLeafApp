@@ -1,28 +1,75 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Upload, X } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import CBREmckinney from './CBREmckinney.png';
+import { BuildingDetailViewProps, BillData, MonthlyBills } from './types';
+import BillParser from './BillParser.tsx';
 
-const BillUploadSection = ({ month, uploadedFiles, onFileUpload }) => {
-  // Function to handle file upload
-  const handleUpload = async (type, file) => {
+interface ChartData {
+  name: string;
+  value: number;
+}
+
+interface BillUploadSectionProps {
+  month: string;
+  uploadedFiles: MonthlyBills;
+  onFileUpload: (month: string, type: string, fileData: BillData) => void;
+}
+
+const BillUploadSection: React.FC<BillUploadSectionProps> = ({ month, uploadedFiles, onFileUpload }) => {
+  const handleUpload = async (type: string, file: File) => {
     if (!file) return;
     
     try {
-      // Read the file to show it was uploaded
+      console.log(`Processing ${type} bill for ${month}:`, file);
+      
       const reader = new FileReader();
       
       reader.onload = () => {
-        // Simulate some data from the PDF
-        // In reality, you'd want to actually extract this from the PDF
-        const mockData = {
-          fileName: file.name,
-          data: {
-            cost: Math.random() * 1000, // Random cost between 0-1000
-            usage: Math.random() * 100   // Random usage between 0-100
-          }
-        };
+        // For testing, let's create more realistic mock data based on utility type
+        let mockData: BillData;
         
+        switch(type) {
+          case 'electricity':
+            mockData = {
+              fileName: file.name,
+              data: {
+                cost: 1250 + Math.random() * 250, // Random cost between $1250-1500
+                usage: 10000 + Math.random() * 2000 // Random usage between 10000-12000 kWh
+              }
+            };
+            break;
+            
+          case 'water':
+            mockData = {
+              fileName: file.name,
+              data: {
+                cost: 300 + Math.random() * 100, // Random cost between $300-400
+                usage: 50000 + Math.random() * 10000 // Random usage between 50000-60000 gallons
+              }
+            };
+            break;
+            
+          case 'heating':
+            mockData = {
+              fileName: file.name,
+              data: {
+                cost: 800 + Math.random() * 200, // Random cost between $800-1000
+                usage: 500 + Math.random() * 100 // Random usage between 500-600 therms
+              }
+            };
+            break;
+            
+          default:
+            mockData = {
+              fileName: file.name,
+              data: {
+                cost: Math.random() * 1000,
+                usage: Math.random() * 100
+              }
+            };
+        }
+        
+        console.log(`Processed data for ${type} bill:`, mockData);
         onFileUpload(month, type, mockData);
       };
       
@@ -33,6 +80,7 @@ const BillUploadSection = ({ month, uploadedFiles, onFileUpload }) => {
     }
   };
 
+
   return (
     <div className="flex items-center justify-between py-3 border-b">
       <span className="text-gray-700 font-medium w-24">{month}:</span>
@@ -40,9 +88,9 @@ const BillUploadSection = ({ month, uploadedFiles, onFileUpload }) => {
         {['heating', 'water', 'electricity'].map((type) => (
           <div key={type} className="flex items-center gap-2">
             <span className="text-sm text-gray-600 capitalize">{type}:</span>
-            {uploadedFiles?.[month]?.[type] ? (
+            {uploadedFiles?.[month]?.[type as keyof typeof uploadedFiles[string]] ? (
               <span className="text-green-600 text-sm">
-                {uploadedFiles[month][type].fileName}
+                {uploadedFiles[month][type as keyof typeof uploadedFiles[string]]?.fileName}
               </span>
             ) : (
               <label className="cursor-pointer text-blue-600 hover:text-blue-800 text-sm">
@@ -52,7 +100,10 @@ const BillUploadSection = ({ month, uploadedFiles, onFileUpload }) => {
                   type="file"
                   accept=".pdf"
                   className="hidden"
-                  onChange={(e) => handleUpload(type, e.target.files[0])}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleUpload(type, file);
+                  }}
                 />
               </label>
             )}
@@ -63,10 +114,10 @@ const BillUploadSection = ({ month, uploadedFiles, onFileUpload }) => {
   );
 };
 
-const BuildingDetailView = ({ onClose, buildingData }) => {  // Add buildingData prop
-  const [uploadedFiles, setUploadedFiles] = useState({});
-  const [energyData, setEnergyData] = useState([]);
-  const [costData, setCostData] = useState([]);
+const BuildingDetailView: React.FC<BuildingDetailViewProps> = ({ buildingData, onClose, onUpdateProperty }) => {
+  const [uploadedFiles, setUploadedFiles] = useState<MonthlyBills>({});
+  const [energyData, setEnergyData] = useState<ChartData[]>([]);
+  const [costData, setCostData] = useState<ChartData[]>([]);
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -74,14 +125,21 @@ const BuildingDetailView = ({ onClose, buildingData }) => {  // Add buildingData
   ];
 
   // Handle file upload and update charts
-  const handleFileUpload = (month, type, fileData) => {
-    setUploadedFiles(prev => ({
-      ...prev,
-      [month]: {
-        ...prev[month],
-        [type]: fileData
-      }
-    }));
+  const handleFileUpload = (month: string, type: string, fileData: BillData) => {
+    console.log(`Updating files for ${month} - ${type}:`, fileData);
+    
+    setUploadedFiles(prev => {
+      const newFiles = {
+        ...prev,
+        [month]: {
+          ...prev[month],
+          [type]: fileData
+        }
+      };
+      
+      console.log('Updated files state:', newFiles);
+      return newFiles;
+    });
 
     // Update charts whenever a new file is uploaded
     updateCharts({
@@ -91,44 +149,75 @@ const BuildingDetailView = ({ onClose, buildingData }) => {  // Add buildingData
         [type]: fileData
       }
     });
+
+    // Update the property in the parent component
+    const updatedProperty = {
+      ...buildingData,
+      bills: uploadedFiles
+    };
+    console.log('Updating property with new data:', updatedProperty);
+    onUpdateProperty(updatedProperty);
   };
 
-  // Function to update both charts
-  const updateCharts = (files) => {
+  const handleBulkBillsParsed = (bills: any) => {
+    setUploadedFiles(bills);
+    updateCharts(bills);
+    
+    const updatedProperty = {
+      ...buildingData,
+      bills: bills
+    };
+    onUpdateProperty(updatedProperty);
+  };
+
+  const updateCharts = (files: MonthlyBills) => {
+    console.log('Updating charts with files:', files);
+    
     const totals = {
       heating: { usage: 0, cost: 0 },
       water: { usage: 0, cost: 0 },
       electricity: { usage: 0, cost: 0 }
     };
 
-    // Calculate totals from all uploaded files
-    Object.values(files).forEach(monthData => {
+    // Calculate totals
+    Object.entries(files).forEach(([month, monthData]) => {
       Object.entries(monthData).forEach(([type, fileData]) => {
-        totals[type].usage += fileData.data.usage;
-        totals[type].cost += fileData.data.cost;
+        if (fileData?.data) {
+          totals[type as keyof typeof totals].usage += fileData.data.usage;
+          totals[type as keyof typeof totals].cost += fileData.data.cost;
+        }
       });
     });
+
+    
+
+    console.log('Calculated totals:', totals);
 
     // Calculate percentages and update charts
     const totalUsage = Object.values(totals).reduce((sum, { usage }) => sum + usage, 0);
     const totalCost = Object.values(totals).reduce((sum, { cost }) => sum + cost, 0);
 
+    console.log('Total usage:', totalUsage);
+    console.log('Total cost:', totalCost);
+
     if (totalUsage > 0) {
-      setEnergyData(
-        Object.entries(totals).map(([name, { usage }]) => ({
-          name: name.charAt(0).toUpperCase() + name.slice(1),
-          value: (usage / totalUsage) * 100
-        }))
-      );
+      const newEnergyData = Object.entries(totals).map(([name, { usage }]) => ({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        value: (usage / totalUsage) * 100
+      }));
+      
+      console.log('New energy distribution data:', newEnergyData);
+      setEnergyData(newEnergyData);
     }
 
     if (totalCost > 0) {
-      setCostData(
-        Object.entries(totals).map(([name, { cost }]) => ({
-          name: name.charAt(0).toUpperCase() + name.slice(1),
-          value: (cost / totalCost) * 100
-        }))
-      );
+      const newCostData = Object.entries(totals).map(([name, { cost }]) => ({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        value: (cost / totalCost) * 100
+      }));
+      
+      console.log('New cost distribution data:', newCostData);
+      setCostData(newCostData);
     }
   };
 
@@ -235,6 +324,14 @@ const BuildingDetailView = ({ onClose, buildingData }) => {  // Add buildingData
                 </div>
               )}
             </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow mb-8">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Bulk Upload</h3>
+            <BillParser
+              onBillsParsed={handleBulkBillsParsed}
+              buildingId={buildingData.title}
+            />
           </div>
 
           {/* Monthly Bills Section */}
