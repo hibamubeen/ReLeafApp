@@ -1,491 +1,207 @@
-import { AlertCircle } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
-import { Camera, ChevronRight, User, Lock, Loader2, ArrowRight, Mail, UserPlus } from 'lucide-react';
-import './LoginPage.css';
+import React, { useState } from 'react';
+import { Leaf } from 'lucide-react';
 import HomePage from './HomePage.tsx';
-import bannerPNG from './rightBanner.png';
-import logoImage from './releaf_logo.png'; 
+import releaf_Logo from './releaf_logo.png';
 
-const LoginPage = () => {
-  const [isLoginClicked, setIsLoginClicked] = useState(false);
-  const [isSignUpClicked, setIsSignUpClicked] = useState(false);
-  const [currentPage, setCurrentPage] = useState('login');
-  const [isHovered, setIsHovered] = useState(null);
-  const [showLoginForm, setShowLoginForm] = useState(false);
-  const [showSignUpForm, setShowSignUpForm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
-  const [formState, setFormState] = useState({
-    username: '',
-    password: '',
-    email: '',
-    confirmPassword: ''
-  });
+const App = () => {
+  const [currentPage, setCurrentPage] = useState('landing');
 
-  const handleLoginClick = () => {
-    if (!showLoginForm) {
-      setIsLoginClicked(true);
-      setTimeout(() => {
-        setShowLoginForm(true);
-        setIsLoginClicked(false);
-      }, 500);
-      return;
-    }
-    
-    setLoading(true);
-    setIsLoginClicked(true);
-    
-    setTimeout(() => {
-      setLoading(false);
-      setCurrentPage('main');
-    }, 1500);
-  };
-
-  const handleSignUpClick = () => {
-    if (showSignUpForm) {
-      if (formState.password !== formState.confirmPassword) {
-        setPasswordError(true);
-        setTimeout(() => {
-          setPasswordError(false);
-        }, 3000);
-        return;
-      }
-      setPasswordError(false);
-    }
-
-    if (!showSignUpForm) {
-      setIsSignUpClicked(true);
-      setTimeout(() => {
-        setShowSignUpForm(true);
-        setIsSignUpClicked(false);
-      }, 500);
-      return;
-    }
-    
-    setLoading(true);
-    setIsSignUpClicked(true);
-    
-    setTimeout(() => {
-      setLoading(false);
-      setCurrentPage('main');
-    }, 1500);
-  };
-
-  if (currentPage === 'main') {
-    return <HomePage />;
-  }
-
-  const buttonBaseStyle = {
-    width: '100%',
-    padding: '14px',
-    borderRadius: '12px',
-    fontSize: '18px',
-    fontFamily: 'serif',
-    cursor: 'pointer',
-    border: 'none',
-    outline: 'none',
-    position: 'relative',
-    overflow: 'hidden',
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '10px',
-    letterSpacing: '0.5px',
-    fontWeight: '500'
-  };
-
-  const inputBaseStyle = {
-    width: '100%',
-    padding: '14px',
-    borderRadius: '12px',
-    fontSize: '16px',
-    fontFamily: 'serif',
-    border: '2px solid transparent',
-    backgroundColor: 'rgba(211, 211, 199, 0.4)',
-    transition: 'all 0.3s ease',
-    outline: 'none',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-  };
-
-  return (
-    <div style={{ 
-      height: '100vh',
-      background: 'linear-gradient(135deg, #F5F5F5 0%, #408D66 100%)', // Changed to neutral gray gradient
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      padding: '10px',
-      paddingTop: '20px',
-      transition: 'all 0.5s ease',
-      position: 'relative',
-      overflow: 'hidden',
-      marginBottom: '-5px'
-    }}>
-      {/* Error Message Popup */}
-      <div style={{
-        position: 'fixed',
-        top: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        backgroundColor: '#ff4444',
-        color: 'white',
-        padding: '12px 24px',
-        borderRadius: '12px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        opacity: passwordError ? 1 : 0,
-        transition: 'opacity 0.3s ease',
-        pointerEvents: passwordError ? 'auto' : 'none',
-        zIndex: 1000,
-      }}>
-        <AlertCircle size={20} />
-        <span style={{ fontFamily: 'serif' }}>Password mismatch, please try again.</span>
-      </div>
-
-      {/* Title and Tagline */}
-      <div style={{
-  textAlign: 'center',
-  marginBottom: '50px',
-  marginTop: '20px', // Added margin top to move logo down
-  transform: (isLoginClicked || isSignUpClicked) ? 'translateY(-20px)' : 'translateY(0)',
-  opacity: (isLoginClicked || isSignUpClicked) ? 0 : 1,
-  transition: 'all 0.5s ease',
-  animation: 'float 6s ease-in-out infinite'
-}}>
-  <div style={{
-    position: 'relative',
-    display: 'inline-block',
-    marginBottom: '20px',
-    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))'
-  }}>
-    <img 
-      src={logoImage} 
-      alt="ReLeaf Logo"
-      style={{
-        height: '170px', // Increased from 180px to 200px
-        width: 'auto',
-        marginBottom: '10px',
-        marginTop: '20px',
-        transition: 'transform 0.3s ease'
-      }}
-    />
-  </div>
-  <p style={{
-    fontSize: '24px',
-    fontFamily: 'serif',
-    opacity: '0.9',
-    color: '#2F3E46',
-    textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
-    letterSpacing: '0.5px',
-    marginBottom: '40px', // Added margin bottom to create more space
-    marginTop: "-40px"
-  }}>
-    Properties, simplified.
-  </p>
-</div>
-      
-<div style={{
-  backgroundColor: 'rgba(255, 255, 255, 0.0)',
-  padding: '28px',
-  borderRadius: '20px',
-  width: '100%',
-  maxWidth: '340px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '18px',
-  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12)',
-  backdropFilter: 'blur(10px)',
-  transform: (isLoginClicked || isSignUpClicked) ? 'translateY(20px)' : 'translateY(0)',
-  transition: 'all 0.5s ease',
-  marginTop: '0.5px' // Added margin top
-}}>
-        {showLoginForm ? (
-          <>
-            <div style={{ position: 'relative' }}>
-              <input 
-                type="text"
-                placeholder="Username"
-                value={formState.username}
-                onChange={(e) => setFormState({...formState, username: e.target.value})}
-                style={{
-                  ...inputBaseStyle,
-                  borderColor: formState.username ? '#8C9A8E' : 'transparent'
-                }}
-              />
-              <User 
-                size={20} 
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: formState.username ? '#8C9A8E' : '#666'
-                }}
-              />
-            </div>
-
-            <div style={{ position: 'relative' }}>
-              <input 
-                type="password"
-                placeholder="Password"
-                value={formState.confirmPassword}
-                onChange={(e) => {
-                  setFormState({...formState, confirmPassword: e.target.value});
-                  setPasswordError(false);
-                }}
-                style={{
-                  ...inputBaseStyle,
-                  borderColor: passwordError ? '#ff4444' : formState.confirmPassword ? '#8C9A8E' : 'transparent'
-                }}
-              />
-              <Lock 
-                size={20} 
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: passwordError ? '#ff4444' : formState.confirmPassword ? '#8C9A8E' : '#666'
-                }}
-              />
-            </div>
-          </>
-        ) : showSignUpForm ? (
-          <>
-            <div style={{ position: 'relative' }}>
-              <input 
-                type="text"
-                placeholder="Username"
-                value={formState.username}
-                onChange={(e) => setFormState({...formState, username: e.target.value})}
-                style={{
-                  ...inputBaseStyle,
-                  borderColor: formState.username ? '#8C9A8E' : 'transparent'
-                }}
-              />
-              <User 
-                size={20} 
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: formState.username ? '#8C9A8E' : '#666'
-                }}
-              />
-            </div>
-
-            <div style={{ position: 'relative' }}>
-              <input 
-                type="email"
-                placeholder="Email"
-                value={formState.email}
-                onChange={(e) => setFormState({...formState, email: e.target.value})}
-                style={{
-                  ...inputBaseStyle,
-                  borderColor: formState.email ? '#8C9A8E' : 'transparent'
-                }}
-              />
-              <Mail 
-                size={20} 
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: formState.email ? '#8C9A8E' : '#666'
-                }}
-              />
-            </div>
-
-            <div style={{ position: 'relative' }}>
-              <input 
-                type="password"
-                placeholder="Password"
-                value={formState.password}
-                onChange={(e) => setFormState({...formState, password: e.target.value})}
-                style={{
-                  ...inputBaseStyle,
-                  borderColor: formState.password ? '#8C9A8E' : 'transparent'
-                }}
-              />
-              <Lock 
-                size={20} 
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: formState.password ? '#8C9A8E' : '#666'
-                }}
-              />
-            </div>
-
-            <div style={{ position: 'relative' }}>
-              <input 
-                type="password"
-                placeholder="Confirm Password"
-                value={formState.confirmPassword}
-                onChange={(e) => setFormState({...formState, confirmPassword: e.target.value})}
-                style={{
-                  ...inputBaseStyle,
-                  borderColor: formState.confirmPassword ? '#8C9A8E' : 'transparent'
-                }}
-              />
-              <Lock 
-                size={20} 
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: formState.confirmPassword ? '#8C9A8E' : '#666'
-                }}
-              />
-            </div>
-          </>
-        ) : null}
-
-        {!showSignUpForm && (
-          <button 
-          onClick={handleLoginClick}
-          onMouseEnter={() => setIsHovered('login')}
-          onMouseLeave={() => setIsHovered(null)}
-          style={{
-            ...buttonBaseStyle,
-            backgroundColor: isLoginClicked ? '#006633' : '#408D66', // Changed to match gradient blue
-            color: '#FFFFFF', // Changed to white for better contrast
-            transform: isLoginClicked 
-              ? 'scale(0.95)' 
-              : isHovered === 'login' 
-                ? 'scale(1.10)' 
-                : 'scale(1)',
-            boxShadow: isHovered === 'login' 
-              ? '0 6px 20px rgba(35, 92, 163, 0.3)' 
-              : '0 2px 10px rgba(35, 92, 163, 0.2)',
-          }}
-        >
-            {loading ? (
-              <Loader2 className="animate-spin" size={20} />
-            ) : (
-              <>
-                <span style={{ position: 'relative', zIndex: 1 }}>
-                  {showLoginForm ? 'Submit' : 'Login'}
-                </span>
-                {!showLoginForm && <ArrowRight size={20} />}
-              </>
-            )}
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: isHovered === 'login' ? '0' : '-100%',
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-              transform: 'translateY(-50%)',
-              transition: 'left 0.5s ease'
-            }}></div>
-          </button>
-        )}
-
-        {!showLoginForm && (
-          <button 
-          onClick={handleSignUpClick}
-          onMouseEnter={() => setIsHovered('signup')}
-          onMouseLeave={() => setIsHovered(null)}
-          style={{
-            ...buttonBaseStyle,
-            backgroundColor: isSignUpClicked ? '#006633' : '#408D66', // Changed to match gradient blue
-            color: '#FFFFFF', // Changed to white for better contrast
-            transform: isSignUpClicked 
-              ? 'scale(0.95)' 
-              : isHovered === 'signup' 
-                ? 'scale(1.10)' 
-                : 'scale(1)',
-            boxShadow: isHovered === 'signup' 
-              ? '0 6px 20px rgba(35, 92, 163, 0.3)' 
-              : '0 2px 10px rgba(35, 92, 163, 0.2)',
-          }}
-        >
-            {loading ? (
-              <Loader2 className="animate-spin" size={20} />
-            ) : (
-              <>
-                <span style={{ position: 'relative', zIndex: 1 }}>
-                  {showSignUpForm ? 'Create Account' : 'Sign Up'}
-                </span>
-                {!showSignUpForm && <UserPlus size={20} />}
-              </>
-            )}
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: isHovered === 'signup' ? '0' : '-100%',
-              width: '100%',
-              height: '100%',
-              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-              transform: 'translateY(-50%)',
-              transition: 'left 0.5s ease',
-            }}></div>
-          </button>
-        )}
-
-        {(showLoginForm || showSignUpForm) && (
-          <button 
-            onClick={() => {
-              setShowLoginForm(false);
-              setShowSignUpForm(false);
-              setFormState({
-                username: '',
-                password: '',
-                email: '',
-                confirmPassword: ''
-              });
-            }}
-            style={{
-              ...buttonBaseStyle,
-              backgroundColor: 'transparent',
-              color: '#000000',
-              fontSize: '14px',
-              padding: '8px'
-            }}
-          >
-            Back to menu
-          </button>
-        )}
+  // Landing Page Component
+  const LandingPage = () => (
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-green-900 text-white relative overflow-hidden">
+      {/* Hero Section */}
+      <div className="container mx-auto px-6 py-24 relative">
+        {/* 3D Floating Elements */}
+        <div className="absolute top-20 right-20 w-32 h-32 bg-green-500/20 rounded-xl transform rotate-12 animate-float" 
+             style={{
+               perspective: '1000px',
+               transform: 'rotateX(45deg) rotateY(-15deg)',
+               animation: 'float 6s ease-in-out infinite'
+             }} />
+        <div className="absolute bottom-40 left-20 w-24 h-24 bg-emerald-500/20 rounded-lg transform -rotate-12"
+             style={{
+               perspective: '1000px',
+               transform: 'rotateX(45deg) rotateY(15deg)',
+               animation: 'float 8s ease-in-out infinite'
+             }} />
         
+        {/* Main Content */}
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <div className="mb-8 transform hover:scale-105 transition-transform duration-300">
+            <img 
+              src={releaf_Logo}
+              alt="ReLeaf"
+              className="h-44 w-auto mx-auto"
+              style={{ filter: 'brightness(0) invert(1)' }} // This makes the logo white
+            />
+            <span className="block text-2xl mt-4 text-green-400">Properties, simplified.</span>
+          </div>
+          
+          <p className="text-xl mb-12 text-gray-300">
+            Providing simple and transparent carbon emission and energy consumption data analytics.
+          </p>
+          
+          {/* CTA Buttons */}
+          <div className="flex gap-6 justify-center">
+            <button 
+              onClick={() => setCurrentPage('login')}
+              className="px-8 py-4 bg-green-600 rounded-lg transform hover:-translate-y-1 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/50">
+              Get Started
+            </button>
+            <a 
+              href="https://www.cbre.com/about-us/corporate-responsibility/corporate-responsibility-planet" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-transparent border-2 border-white rounded-lg transform hover:-translate-y-1 transition-all duration-300 hover:bg-white/10"
+            >
+              Learn More
+            </a>
+          </div>
+        </div>
+        
+        {/* Feature Cards */}
+        <div className="grid md:grid-cols-3 gap-8 mt-24">
+          {[
+            { title: 'Sustainability', desc: 'Eco-friendly solutions for a greener tomorrow' },
+            { title: 'Innovation', desc: 'Cutting-edge environmental technology' },
+            { title: 'Community', desc: 'Building a global network of environmental advocates' }
+          ].map((feature, index) => (
+            <div key={index} 
+                 className="p-6 bg-white/10 backdrop-blur-lg rounded-xl transform hover:-translate-y-2 transition-all duration-300"
+                 style={{
+                   perspective: '1000px',
+                   transform: `rotateX(${index * 5}deg) rotateY(${index * 3}deg)`
+                 }}>
+              <h3 className="text-xl font-bold mb-4 text-green-400">{feature.title}</h3>
+              <p className="text-gray-300">{feature.desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
-      <div style={{ 
-  position: 'fixed',
-  bottom: 0,
-  left: 0,
-  right: 0,
-  height: '50px',
-  zIndex: 10
-}}>
-  </div>
-<div className="w-full mt-auto" style={{ 
-  marginBottom: '-18px',
-  width: '105%',  // Make container wider than viewport
-  marginLeft: '-2%'  // Center the wider container
-}}>
-  <img 
-    src={bannerPNG} 
-    alt="Banner" 
-    className="w-full h-auto" 
-    style={{ 
-      objectFit: 'cover',
-      width: '100%'  // Make image fill the wider container
-    }} 
-  />
-</div>
+
+      {/* Background Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500/10 rounded-full filter blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full filter blur-3xl" />
+      </div>
     </div>
   );
-  
+
+  // Login Page Component
+  const LoginPage = () => {
+    const [isLogin, setIsLogin] = useState(true);
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      setCurrentPage('home'); // Navigate to home page
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-green-900 flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Back Button */}
+        <button 
+          onClick={() => setCurrentPage('landing')}
+          className="absolute top-6 left-6 text-white hover:text-green-400 transition-colors duration-300"
+        >
+          ← Back to Home
+        </button>
+
+        {/* Main Card */}
+        <div className="relative bg-white/10 backdrop-blur-lg rounded-2xl p-8 w-full max-w-md transform hover:scale-[1.01] transition-all duration-300 border border-white/20">
+          {/* Logo Section */}
+          <div className="text-center mb-8">
+          <img 
+              src={releaf_Logo}
+              alt="ReLeaf"
+              className="h-28 w-auto mx-auto"
+              style={{ filter: 'brightness(0) invert(1)' }} // This makes the logo white
+            />
+            <p className="text-green-400">Properties, Simplified.</p>
+          </div>
+
+          {/* Toggle Buttons */}
+          <div className="flex mb-8 bg-white/5 rounded-lg p-1">
+            <button
+              className={`flex-1 py-3 rounded-md transition-all duration-300 ${
+                isLogin ? 'bg-green-600 text-white' : 'text-gray-300 hover:text-white'
+              }`}
+              onClick={() => setIsLogin(true)}
+            >
+              Login
+            </button>
+            <button
+              className={`flex-1 py-3 rounded-md transition-all duration-300 ${
+                !isLogin ? 'bg-green-600 text-white' : 'text-gray-300 hover:text-white'
+              }`}
+              onClick={() => setIsLogin(false)}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-green-400 mb-2 text-sm">Email</label>
+              <input
+                type="email"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
+                placeholder="Enter your email"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-green-400 mb-2 text-sm">Password</label>
+              <input
+                type="password"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
+                placeholder="Enter your password"
+              />
+            </div>
+
+            {!isLogin && (
+              <div>
+                <label className="block text-green-400 mb-2 text-sm">Confirm Password</label>
+                <input
+                  type="password"
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
+                  placeholder="Confirm your password"
+                />
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold transform hover:-translate-y-1 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/50"
+            >
+              {isLogin ? 'Login' : 'Sign Up'}
+            </button>
+          </form>
+
+          {/* Forgot Password Link */}
+          {isLogin && (
+            <p className="text-center mt-4">
+              <a href="#" className="text-green-400 hover:text-green-300 text-sm">
+                Forgot your password?
+              </a>
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Render current page based on state
+  switch (currentPage) {
+    case 'landing':
+      return <LandingPage />;
+    case 'login':
+      return <LoginPage />;
+    case 'home':
+      return <HomePage />;
+    default:
+      return <LandingPage />;
+  }
 };
 
-export default LoginPage;
+export default App;

@@ -8,6 +8,8 @@ import WaterPark from './WaterPark.jpg';
 import SavedAnalysis from './SavedAnalysis.tsx';
 import EcswBuilding from './EcswBuilding.jpg';
 import CarbonCalculator from './CarbonCalculator.tsx';
+import releaf_Logo from './releaf_glogo.png';
+
 
 
 // Centralized styles object
@@ -620,7 +622,13 @@ const HomePage = () => {
           <button className={styles.header.iconButton}>
             <Settings size={24} className={styles.header.icon} />
           </button>
-          <h1 className={styles.header.title}>ReLeaf</h1>
+          
+          <img 
+            src={releaf_Logo}
+            alt="ReLeaf"
+            className="h-16 w-auto"
+            style={{ filter: 'brightness(0) invert(0.2) sepia(1) saturate(1000%) hue-rotate(90deg)' }} // This makes the logo green
+          />
           <button className={styles.header.iconButton}>
             <Bell size={24} className={styles.header.icon} />
           </button>
